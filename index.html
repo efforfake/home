@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Efforfake</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=DM+Sans:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0D0D0F;
+    --surface: #141417;
+    --card: #1A1A1F;
+    --card-hover: #202027;
+    --sand: #C8B8A2;
+    --sand-dim: #8A7A68;
+    --teal: #7A9E9F;
+    --teal-dim: #4A6E6F;
+    --cream: #F0EBE3;
+    --muted: #6B6B72;
+    --border: rgba(200, 184, 162, 0.08);
+    --border-hover: rgba(200, 184, 162, 0.18);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: rgba(122, 158, 159, 0.25); color: var(--cream); }
+
+  /* NOISE TEXTURE */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 1.5rem 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(13,13,15,0.9) 0%, transparent 100%);
+    backdrop-filter: blur(0px);
+  }
+
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--cream);
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  .nav-slogan {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 8rem 2rem 4rem;
+    overflow: hidden;
+  }
+
+  .hero-orb {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(122,158,159,0.06) 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -55%);
+    pointer-events: none;
+  }
+
+  .hero-orb-2 {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(200,184,162,0.04) 0%, transparent 70%);
+    top: 60%;
+    left: 30%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--teal);
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.2s forwards;
+  }
+
+  .hero-name {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(4rem, 14vw, 10rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 0.9;
+    color: var(--cream);
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 0.35s forwards;
+  }
+
+  .hero-name em {
+    font-style: italic;
+    color: var(--sand);
+  }
+
+  .hero-desc {
+    font-size: 1rem;
+    color: var(--muted);
+    max-width: 380px;
+    line-height: 1.75;
+    margin-bottom: 3.5rem;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 0.5s forwards;
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.8rem 2rem;
+    border: 1px solid var(--border-hover);
+    border-radius: 2px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--sand);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 0.65s forwards;
+  }
+
+  .hero-cta:hover {
+    background: rgba(200,184,162,0.06);
+    border-color: var(--sand-dim);
+    color: var(--cream);
+  }
+
+  .hero-cta svg { transition: transform 0.3s ease; }
+  .hero-cta:hover svg { transform: translateY(3px); }
+
+  /* TICKER */
+  .ticker-wrap {
+    width: 100%;
+    overflow: hidden;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 1.1rem 0;
+    background: rgba(20,20,23,0.5);
+  }
+
+  .ticker-track {
+    display: flex;
+    gap: 0;
+    width: max-content;
+    animation: ticker 28s linear infinite;
+  }
+
+  .ticker-item {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    padding: 0 3rem;
+  }
+
+  .ticker-item span {
+    color: var(--teal-dim);
+    margin: 0 0.5rem;
+  }
+
+  /* SECTION */
+  section {
+    position: relative;
+    z-index: 1;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 0.75rem;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    font-weight: 500;
+    color: var(--cream);
+    line-height: 1.2;
+  }
+
+  /* PLATFORM CARDS */
+  .platforms {
+    padding: 6rem 0;
+  }
+
+  .platforms-header {
+    margin-bottom: 3.5rem;
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .platform-card {
+    background: var(--card);
+    padding: 2rem 1.75rem;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    transition: background 0.25s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .platform-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--teal);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.35s ease;
+  }
+
+  .platform-card:hover {
+    background: var(--card-hover);
+  }
+
+  .platform-card:hover::after {
+    transform: scaleX(1);
+  }
+
+  .card-icon {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border-hover);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card-icon svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--sand);
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .card-type {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .card-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--cream);
+  }
+
+  .card-desc {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.6;
+    flex: 1;
+  }
+
+  .card-arrow {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--teal);
+    transition: gap 0.3s ease;
+  }
+
+  .platform-card:hover .card-arrow {
+    gap: 0.7rem;
+  }
+
+  .card-arrow svg {
+    width: 12px;
+    height: 12px;
+    stroke: var(--teal);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.3s ease;
+  }
+
+  .platform-card:hover .card-arrow svg {
+    transform: translateX(3px);
+  }
+
+  /* ABOUT STRIP */
+  .about {
+    padding: 5rem 0 6rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .about-inner {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  .about-text {
+    font-size: 1rem;
+    color: var(--muted);
+    line-height: 1.85;
+  }
+
+  .about-text strong {
+    color: var(--sand);
+    font-weight: 500;
+  }
+
+  .values-row {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .value-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .value-word {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--sand);
+  }
+
+  .value-line {
+    width: 24px;
+    height: 1px;
+    background: var(--teal-dim);
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 0;
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .footer-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--cream);
+    text-transform: uppercase;
+  }
+
+  .footer-note {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    nav { padding: 1.25rem 1.5rem; }
+    .nav-slogan { display: none; }
+    .hero { padding: 6rem 1.5rem 3rem; }
+    .container { padding: 0 1.5rem; }
+    .about-inner { grid-template-columns: 1fr; gap: 2rem; }
+    .cards-grid { grid-template-columns: 1fr; }
+    .footer-inner { flex-direction: column; align-items: flex-start; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ticker-track { animation: none; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+    * { animation-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="nav-logo">Efforfake</a>
+  <span class="nav-slogan">Peace // Love // Empathy</span>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-orb"></div>
+  <div class="hero-orb-2"></div>
+
+  <p class="hero-eyebrow">Creative Universe</p>
+
+  <h1 class="hero-name">
+    <em>keep smiling :)</em>
+  </h1>
+
+  <p class="hero-desc">
+    A creative space for art, community, and everything in between. Explore original works, join the conversation, or take something home.
+  </p>
+
+  <a href="#explore" class="hero-cta">
+    Explore
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 5v14M5 12l7 7 7-7"/>
+    </svg>
+  </a>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-track">
+    <span class="ticker-item">Peace <span>//</span> Love <span>//</span> Empathy</span>
+    <span class="ticker-item">Original Art <span>//</span> Editing <span>//</span> Commission</span>
+    <span class="ticker-item">Creative Community <span>//</span> Wearable Art <span>//</span> Lifestyle</span>
+    <span class="ticker-item">Peace <span>//</span> Love <span>//</span> Empathy</span>
+    <span class="ticker-item">Original Art <span>//</span> Editing <span>//</span> Commission</span>
+    <span class="ticker-item">Creative Community <span>//</span> Wearable Art <span>//</span> Lifestyle</span>
+    <span class="ticker-item">Peace <span>//</span> Love <span>//</span> Empathy</span>
+    <span class="ticker-item">Original Art <span>//</span> Editing <span>//</span> Commission</span>
+  </div>
+</div>
+
+<!-- PLATFORMS -->
+<section class="platforms" id="explore">
+  <div class="container">
+    <div class="platforms-header reveal">
+      <p class="section-label">Find me here</p>
+      <h2 class="section-title">Where to find<br><em style="font-style:italic; color: var(--sand);">the work</em></h2>
+    </div>
+
+    <div class="cards-grid reveal">
+
+      <!-- Pinterest -->
+      <a class="platform-card" href="https://pinterest.com/efforfake" target="_blank" rel="noopener">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 15.5c.5 2.5 1 4 1 4s.5-2 2-4c2.5-.5 4-2 4-4.5a4 4 0 0 0-8 0c0 1 .5 2 1.5 2.5"/></svg>
+        </div>
+        <div>
+          <p class="card-type">Art Gallery</p>
+          <p class="card-name">Pinterest</p>
+        </div>
+        <p class="card-desc">Curated collections of artworks, edits, and visual inspiration all in one place.</p>
+        <div class="card-arrow">
+          Visit <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+      </a>
+
+      <!-- DeviantArt -->
+      <a class="platform-card" href="https://deviantart.com/efforfake" target="_blank" rel="noopener">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><polyline points="13 4 4 12 9 12 11 20 20 12 15 12"/></svg>
+        </div>
+        <div>
+          <p class="card-type">Art Gallery</p>
+          <p class="card-name">DeviantArt</p>
+        </div>
+        <p class="card-desc">Explore a complete gallery of original artworks, edits, and commissioned creations.</p>
+        <div class="card-arrow">
+          Visit <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+      </a>
+
+      <!-- Olshop -->
+      <a class="platform-card" href="https://msha.ke/efforfake" target="_blank" rel="noopener">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        </div>
+        <div>
+          <p class="card-type">Online Store</p>
+          <p class="card-name">Shop</p>
+        </div>
+        <p class="card-desc">Apparel, fragrances, accessories, and more — wearable art for everyday life.</p>
+        <div class="card-arrow">
+          Shop now <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+      </a>
+
+      <!-- Telegram -->
+      <a class="platform-card" href="https://t.me/efforfake" target="_blank" rel="noopener">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>
+        </div>
+        <div>
+          <p class="card-type">Community</p>
+          <p class="card-name">Telegram</p>
+        </div>
+        <p class="card-desc">Join active channels and groups to connect, chat, share ideas, and stay updated.</p>
+        <div class="card-arrow">
+          Join <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about">
+  <div class="container">
+    <div class="about-inner reveal">
+      <div>
+        <p class="section-label">About</p>
+        <h2 class="section-title">Who's<br>behind<br><em style="font-style:italic; color:var(--sand);">this</em></h2>
+      </div>
+      <div>
+        <p class="about-text">
+          <strong>Efforfake</strong> is a creative space built on sincerity — not performance. Here, art and lifestyle coexist naturally, while community remains the foundation of everything we create.
+          <br><br>
+          We welcome <strong>editing commissions</strong> and collaborations with anyone who shares a vision and a passion for meaningful work. If this energy resonates with you, you're already in the right place.
+        </p>
+
+        <div class="values-row">
+          <div class="value-item">
+            <span class="value-word">Peace</span>
+            <div class="value-line"></div>
+          </div>
+          <div class="value-item">
+            <span class="value-word">Love</span>
+            <div class="value-line"></div>
+          </div>
+          <div class="value-item">
+            <span class="value-word">Empathy</span>
+            <div class="value-line"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <span class="footer-brand">Efforfake</span>
+      <span class="footer-note">Peace // Love // Empathy</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
