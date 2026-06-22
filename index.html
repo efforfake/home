@@ -25,6 +25,21 @@
     --border-hover: rgba(200, 184, 162, 0.18);
   }
 
+  [data-theme="light"] {
+    --bg: #F5F1EA;
+    --surface: #EDE7DC;
+    --card: #FFFFFF;
+    --card-hover: #F7F2E9;
+    --sand: #8A6F4E;
+    --sand-dim: #B79F7E;
+    --teal: #3F6B6C;
+    --teal-dim: #7A9E9F;
+    --cream: #1E1B17;
+    --muted: #6E6A63;
+    --border: rgba(60, 50, 35, 0.1);
+    --border-hover: rgba(60, 50, 35, 0.22);
+  }
+
   html { scroll-behavior: smooth; }
 
   body {
@@ -35,6 +50,7 @@
     line-height: 1.6;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    transition: background 0.4s ease, color 0.4s ease;
   }
 
   ::selection { background: rgba(122, 158, 159, 0.25); color: var(--cream); }
@@ -48,6 +64,51 @@
     pointer-events: none;
     z-index: 0;
     opacity: 0.4;
+  }
+
+  [data-theme="light"] body::before {
+    opacity: 0.15;
+  }
+
+  /* THEME TOGGLE */
+  .theme-toggle {
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--border-hover);
+    border-radius: 50%;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.3s ease, border-color 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .theme-toggle:hover {
+    background: rgba(200,184,162,0.08);
+    border-color: var(--sand-dim);
+  }
+
+  .theme-toggle svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--sand);
+    fill: none;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .theme-toggle .icon-moon { display: block; }
+  .theme-toggle .icon-sun { display: none; }
+  [data-theme="light"] .theme-toggle .icon-moon { display: none; }
+  [data-theme="light"] .theme-toggle .icon-sun { display: block; }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
   }
 
   /* NAV */
@@ -268,7 +329,7 @@
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
-    transition: background 0.25s ease;
+    transition: background 0.25s ease, border-color 0.4s ease;
     cursor: pointer;
     position: relative;
     overflow: hidden;
@@ -475,6 +536,7 @@
   @media (max-width: 640px) {
     nav { padding: 1.25rem 1.5rem; }
     .nav-slogan { display: none; }
+    .nav-right { gap: 0; }
     .hero { padding: 6rem 1.5rem 3rem; }
     .container { padding: 0 1.5rem; }
     .about-inner { grid-template-columns: 1fr; gap: 2rem; }
@@ -493,7 +555,13 @@
 
 <nav>
   <a href="#" class="nav-logo">Efforfake</a>
-  <span class="nav-slogan">Peace // Love // Empathy</span>
+  <div class="nav-right">
+    <span class="nav-slogan">Peace // Love // Empathy</span>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light mode" type="button">
+      <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+    </button>
+  </div>
 </nav>
 
 <!-- HERO -->
@@ -652,6 +720,27 @@
 </footer>
 
 <script>
+  (function() {
+    const root = document.documentElement;
+    const toggleBtn = document.getElementById('themeToggle');
+    const saved = localStorage.getItem('efforfake-theme');
+    const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+    const initial = saved || (prefersLight ? 'light' : 'dark');
+
+    if (initial === 'light') root.setAttribute('data-theme', 'light');
+
+    toggleBtn.addEventListener('click', () => {
+      const isLight = root.getAttribute('data-theme') === 'light';
+      if (isLight) {
+        root.removeAttribute('data-theme');
+        localStorage.setItem('efforfake-theme', 'dark');
+      } else {
+        root.setAttribute('data-theme', 'light');
+        localStorage.setItem('efforfake-theme', 'light');
+      }
+    });
+  })();
+
   const reveals = document.querySelectorAll('.reveal');
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry, i) => {
